@@ -1,11 +1,44 @@
 import React, { Component } from 'react';
-import StateChart, {State} from 'statechartjs';
+import StateChart, {State, RoutableState, router} from 'statechartjs';
 import logger from './logger';
 
-window.word = State.define({concurrent: true}, function() {
+window.State = State;
+window.RoutableState = RoutableState;
+window.router = router;
+
+// router
+window.routeObject = {};
+
+// route1 test - basic 
+// router.start({window: window});
+// routeObject.foosRoute = router.define('/foos', (a)=> console.log('foos reached', a));
+// routeObject.barsRoute = router.define('/bars', (a)=> console.log('bars reached', a));
+ // router.define('/nope', function() { return false; });
+// router.unknown((a) => console.log('unknown route', a));
+// router._handleLocationChange('/foos');
+// router._handleLocationChange('/bars');
+// router._handleLocationChange('/baz'); // unknown route
+
+// route2 test - named, splat
+// routeObject.foosRoute = router.define('/foos/:id/*splat', (a) => 
+//   console.log('entered "foos" with context', a)
+// );
+// router._handleLocationChange('/foos/99/df/dsf/asdf')
+
+// route2 test - splat, named
+routeObject.foosRoute = router.define('/foos/*splat/:id', (a) => 
+  console.log('entered "foos" with context', a)
+);
+router._handleLocationChange('/foos/99/df/dsf/asdf')
+
+// word statechart
+window.word = RoutableState.define({concurrent: true}, function() {
   this.state('bold', function() {
     this.state('off', function() {
       this.event('toggleBold', function() { this.goto('../on'); });
+      this.canExit = function() {
+        console.log('can exit');
+      }
     });
 
     this.state('on', function() {
